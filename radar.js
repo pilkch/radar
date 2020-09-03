@@ -76,6 +76,30 @@ var renderScanLines = function(){
   ctx.stroke();
 };
 
+var renderTargets = function() {
+  ctx.globalCompositeOperation = 'source-over';
+
+  var points = [{x:-45, y:-64}, {x:56, y:100}, {x:23, y:44}, {x:-23, y:44}, {x:230, y:-84}];
+  var len = points.length;
+  for(var i = 0; i < len; i++) {
+    var x = radius + points[i].x;
+    var y = radius + points[i].y;
+    var targetRadius = 0.04 * radius;
+
+    var hue = 127;
+    var saturation = 100;
+    var lightness = 69;
+
+    ctx.beginPath();
+    ctx.arc(x, x, targetRadius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, 0.2 )';
+    ctx.fill();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, 0.1 )';
+    ctx.stroke();
+  }
+};
+
 ctx.clear = function(){
   ctx.globalCompositeOperation = 'destination-out';
   ctx.fillStyle = 'hsla( 0, 0%, 0%, 0.1 )';
@@ -91,5 +115,6 @@ ctx.draw = function(){
   renderRings();
   renderGrid();
   renderSweep();
+  renderTargets();
   renderScanLines();
 };
