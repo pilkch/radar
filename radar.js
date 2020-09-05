@@ -1,3 +1,17 @@
+function clamp(num, min, max) {
+  return num <= min ? min : num >= max ? max : num;
+}
+
+function angle(point) {
+  // https://stackoverflow.com/questions/9614109/how-to-calculate-an-angle-from-points
+  var origin = { x:0, y:0 };
+  var dy = point.y - origin.y;
+  var dx = point.x - origin.x;
+  var theta = Math.atan2(dy, dx); // range (-pi, pi]
+  theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+  return theta;
+}
+
 var radar = document.getElementById( 'radar' ), 
 padding = 14,
 diameter = Math.min(window.innerWidth, window.innerHeight) - (2 * padding),
@@ -76,27 +90,37 @@ var renderScanLines = function(){
   ctx.stroke();
 };
 
+var targets = [{ x:-145, y:-164, lastBlip:0 }, { x:156, y:100, lastBlip:0 }, { x:123, y:144, lastBlip:0 }, { x:-123, y:144, lastBlip:0 }, { x:230, y:-184, lastBlip:0 }];
+
 var renderTargets = function() {
+  var time = window.performance.now();
+
   ctx.globalCompositeOperation = 'source-over';
 
-  var points = [{x:-45, y:-64}, {x:56, y:100}, {x:23, y:44}, {x:-23, y:44}, {x:230, y:-84}];
-  var len = points.length;
+  var len = targets.length;
   for(var i = 0; i < len; i++) {
-    var x = radius + points[i].x;
-    var y = radius + points[i].y;
-    var targetRadius = 0.04 * radius;
+    var lastBlip = targets[i].lastBlip;
+    if (lastBlip != 0) {
+      var x = radius + targets[i].x;
+      var y = radius + targets[i].y;
 
-    var hue = 127;
-    var saturation = 100;
-    var lightness = 69;
+      var targetRadius = 0.04 * radius;
 
-    ctx.beginPath();
-    ctx.arc(x, x, targetRadius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, 0.2 )';
-    ctx.fill();
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, 0.1 )';
-    ctx.stroke();
+      var hue = 127;
+      var saturation = 100;
+      var lightness = 69;
+      var alpha_fade = clamp(600.0 - (time - lastBlip), 0.0, 1.0);
+      var alpha1 = alpha_fade * 0.2;
+      var alpha2 = alpha_fade * 0.1;
+
+      ctx.beginPath();
+      ctx.arc(x, y, targetRadius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, ' + alpha1 + ' )';
+      ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = 'hsla( ' + hue + ', ' + saturation + '%, ' + lightness + '%, ' + alpha1 + ' )';
+      ctx.stroke();
+    }
   }
 };
 
@@ -105,8 +129,23 @@ ctx.clear = function(){
   ctx.fillStyle = 'hsla( 0, 0%, 0%, 0.1 )';
   ctx.fillRect( 0, 0, diameter, diameter );
 };
-  
+
 ctx.update = function(){
+  var sweepAngle0 = (sweepAngle + 180.0) % 360.0;
+  var sweepAngle1 = (sweepAngle + sweepSpeed + 180.0) % 360.0;
+
+  var time = window.performance.now();
+
+  // Check if we have just passed over a target
+  var len = targets.length;
+  for(var i = 0; i < len; i++) {
+    // NOTE: We add 180 degrees to keep the range positive and away from the boundary at 0
+    var angleToTarget = angle(targets[i]) + 180.0;
+    if ((angleToTarget > sweepAngle0) && (angleToTarget < sweepAngle1)) {
+      targets[i].lastBlip = time;
+    }
+  }
+
   sweepAngle += sweepSpeed;
 };
 
