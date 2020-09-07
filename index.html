@@ -5,9 +5,56 @@
     <title>Radar</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
   </head>
-  <body>
+  <body onload="init();">
     <div id="radar"></div>
-  </body>
-  <script src="sketch.js"></script>
-  <script src="radar.js"></script>
+
+<script src="sketch.js"></script>
+<script src="radar.js"></script>
+
+<script type="text/javascript" src="lib/soundjs-NEXT.js"></script>
+<!-- We also provide hosted minified versions of all CreateJS libraries.
+  http://code.createjs.com -->
+
+<script id="editable">
+  var preload;
+
+  function init() {
+    console.log("init");
+    if (!createjs.Sound.initializeDefaultPlugins()) {
+      console.log("init initializeDefaultPlugins Failed");
+      document.getElementById("error").style.display = "block";
+      document.getElementById("content").style.display = "none";
+      return;
+    }
+
+    var assetsPath = "./";
+    var sounds = [
+      { src: "audio/SubPing02.wav", id: '1' },
+    ];
+
+    createjs.Sound.registerSounds(sounds, assetsPath);
+  }
+
+  function stop() {
+    if (preload != null) {
+      preload.close();
+    }
+
+    createjs.Sound.stop();
+  }
+
+  function playBlipSound() {
+    // The id from the list above
+    var id = 1;
+    // Play the sound: play (src, interrupt, delay, offset, loop, volume, pan)
+    var instance = createjs.Sound.play(id);
+    if (instance == null || instance.playState == createjs.Sound.PLAY_FAILED) {
+      console.log("Error playing sound");
+      return;
+    }
+  }
+</script>
+
+</body>
+
 </html>
