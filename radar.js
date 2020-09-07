@@ -141,12 +141,17 @@ ctx.update = function(){
   for(var i = 0; i < len; i++) {
     // NOTE: We add 180 degrees to keep the range positive and away from the boundary at 0
     var angleToTarget = angle(targets[i]) + 180.0;
+
+    // Start playing a sound just before we get there so that it is playing as we hit, by checking against a slightly advanced sweep angle
+    var startPlayingOffset = 35.0;
+    if ((angleToTarget > sweepAngle0 + startPlayingOffset) && (angleToTarget < sweepAngle1 + startPlayingOffset)) {
+      // Play a blip sound
+      playBlipSound();
+    }
+
     if ((angleToTarget > sweepAngle0) && (angleToTarget < sweepAngle1)) {
       // Update the time that the sweep hit the target
       targets[i].lastBlip = time;
-
-      // Play a blip sound
-      playBlipSound();
     }
   }
 
