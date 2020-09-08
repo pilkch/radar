@@ -91,6 +91,9 @@ var renderScanLines = function(){
 
 var targets = [];
 
+var maxBlips = 2;
+var fadeOutTime = 600;
+
 var renderTargets = function() {
   var time = window.performance.now();
 
@@ -108,7 +111,7 @@ var renderTargets = function() {
       var hue = 127;
       var saturation = 100;
       var lightness = 69;
-      var alpha_fade = clamp(600.0 - (time - lastBlip), 0.0, 1.0);
+      var alpha_fade = clamp(fadeOutTime - (time - lastBlip), 0.0, 1.0);
       var alpha1 = alpha_fade * 0.2;
       var alpha2 = alpha_fade * 0.1;
 
@@ -141,7 +144,7 @@ ctx.container.addEventListener('click', function(event) {
   var pointX = offsetX - radius;
   var pointY = offsetY - radius;
 
-  targets.push({ x:pointX, y:pointY, lastBlip:0 });
+  targets.push({ x:pointX, y:pointY, lastBlip:0, blips:0 });
 
 }, false);
 
@@ -168,8 +171,14 @@ ctx.update = function(){
     if ((angleToTarget > sweepAngle0) && (angleToTarget < sweepAngle1)) {
       // Update the time that the sweep hit the target
       targets[i].lastBlip = time;
+
+      // Increment the blips
+      targets[i].blips++;
     }
   }
+
+  // Remove any targets where we have blipped enough and also finished our last fade out time
+  targets = targets.filter(target => !((target.blips > maxBlips) && ((time - target.lastBlip) > fadeOutTime)));
 
   sweepAngle += sweepSpeed;
 };
