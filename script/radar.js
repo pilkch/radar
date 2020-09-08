@@ -147,9 +147,6 @@ ctx.container.addEventListener('click', function(event) {
 }, false);
 
 ctx.update = function(){
-  var sweepAngle0 = (sweepAngle + 180.0) % 360.0;
-  var sweepAngle1 = (sweepAngle + sweepSpeed + 180.0) % 360.0;
-
   var time = window.performance.now();
 
   // Check if we have just passed over a target
@@ -160,11 +157,15 @@ ctx.update = function(){
 
     // Start playing a sound just before we get there so that it is playing as we hit, by checking against a slightly advanced sweep angle
     var startPlayingOffset = 35.0;
-    if ((angleToTarget > sweepAngle0 + startPlayingOffset) && (angleToTarget < sweepAngle1 + startPlayingOffset)) {
+    var advancedSweepAngle0 = (sweepAngle + startPlayingOffset + 180.0) % 360.0;
+    var advancedSweepAngle1 = (sweepAngle + startPlayingOffset + sweepSpeed + 180.0) % 360.0;
+    if ((angleToTarget > advancedSweepAngle0) && (angleToTarget < advancedSweepAngle1)) {
       // Play a blip sound
       playBlipSound();
     }
 
+    var sweepAngle0 = (sweepAngle + 180.0) % 360.0;
+    var sweepAngle1 = (sweepAngle + sweepSpeed + 180.0) % 360.0;
     if ((angleToTarget > sweepAngle0) && (angleToTarget < sweepAngle1)) {
       // Update the time that the sweep hit the target
       targets[i].lastBlip = time;
