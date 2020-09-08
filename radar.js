@@ -90,7 +90,7 @@ var renderScanLines = function(){
   ctx.stroke();
 };
 
-var targets = [{ x:-145, y:-164, lastBlip:0 }, { x:156, y:100, lastBlip:0 }, { x:123, y:144, lastBlip:0 }, { x:-123, y:144, lastBlip:0 }, { x:230, y:-184, lastBlip:0 }];
+var targets = [];
 
 var renderTargets = function() {
   var time = window.performance.now();
@@ -129,6 +129,22 @@ ctx.clear = function(){
   ctx.fillStyle = 'hsla( 0, 0%, 0%, 0.1 )';
   ctx.fillRect( 0, 0, diameter, diameter );
 };
+
+// Add event listener for `click` events.
+ctx.container.addEventListener('click', function(event) {
+  var elemLeft = ctx.container.offsetLeft;
+  var elemTop = ctx.container.offsetTop;
+
+  var offsetX = event.pageX - elemLeft;
+  var offsetY = event.pageY - elemTop;
+
+  // Subtract the radius to get a target it the range -radius to +radius
+  var pointX = offsetX - radius;
+  var pointY = offsetY - radius;
+
+  targets.push({ x:pointX, y:pointY, lastBlip:0 });
+
+}, false);
 
 ctx.update = function(){
   var sweepAngle0 = (sweepAngle + 180.0) % 360.0;
