@@ -2,7 +2,7 @@ function clamp(num, min, max) {
   return num <= min ? min : num >= max ? max : num;
 }
 
-function angle(point) {
+function calculateAngleToPoint(point) {
   // https://stackoverflow.com/questions/9614109/how-to-calculate-an-angle-from-points
   var origin = { x:0, y:0 };
   var dy = point.y - origin.y;
@@ -78,7 +78,6 @@ var renderSweep = function(){
 
 var renderScanLines = function(){
   var i;
-  var j;
   ctx.beginPath();
   for( i = 0; i < diameter; i += 2 ){    
     ctx.moveTo( 0, i + .5 );
@@ -153,7 +152,7 @@ ctx.update = function(){
   var len = targets.length;
   for(var i = 0; i < len; i++) {
     // NOTE: We add 180 degrees to keep the range positive and away from the boundary at 0
-    var angleToTarget = angle(targets[i]) + 180.0;
+    var angleToTarget = calculateAngleToPoint(targets[i]) + 180.0;
 
     // Start playing a sound just before we get there so that it is playing as we hit, by checking against a slightly advanced sweep angle
     var startPlayingOffset = 35.0;
